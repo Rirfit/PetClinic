@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crie sua conta! | PetClinic</title>
+    <link rel="stylesheet" href="/style/main.css">
+    <link rel="stylesheet" href="/style/style00.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="/img/PatClinic.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <div class="container">
+        <span class="Crie"> <h1>Crie sua conta! 😉</h1></span>
+        <div class="social-login">
+           
+
+        </div>
+
+        <div class="divider">
+            <div class="line"></div>
+            <p></p>
+            <div class="line"></div>
+        </div>
+
+        <form id="form-cadastro" action="/auth/cadastrar" method="POST">  <!-- Rota para onde os dados serão enviados -->
+
+            <label for="nome">Nome completo:</label>
+            <div class="costume-input">
+                <input type="text" name="nome" 
+                placeholder="Insira seu Nome completo" title="Insira seu nome"
+                autocomplete="on" required>
+                <i class='bx bx-rename'></i>
+            </div>
+        
+            <label for="email">Email:</label>
+            <div class="costume-input">
+                <input type="email" name="email" 
+                placeholder="Insira seu Email" title="Insira seu email"
+                autocomplete="on" required>
+                <i class='bx bx-at'></i>
+            </div>
+        
+            <label for="telefone">Telefone:</label>
+            <div class="costume-input">
+                <input type="text" name="telefone" 
+                placeholder="Insira seu telefone: (xx) xxxx-xxxx" title="Insira seu telefone"
+                autocomplete="on" required>
+                <i class='bx bx-telefone'></i>
+            </div>
+        
+            <label for="cpf">CPF:</label>
+            <div class="costume-input">
+                <input type="text" name="cpf" 
+                placeholder="Insira seu CPF" title="Insira seu CPF"
+                autocomplete="on" required>
+                <i class='bx bx-id-card'></i>
+            </div>
+        
+            <label for="senha">Senha:</label>
+            <div class="costume-input">
+                <input type="password" name="senha" id="senha"
+                placeholder="Insira sua Senha" title="Insira sua senha" required>
+                <i class="bi bi-eye-fill" id="eye" onclick="mostrarSenha(this, 'senha')"></i>
+            </div>
+        
+            <label for="confirmarSenha">Confirmar Senha:</label>
+            <div class="costume-input">
+                <input type="password" name="confirmarSenha" id="confirmarSenha"
+                placeholder="Confirme sua Senha" title="Confirme sua senha" required>
+                <i class="bi bi-eye-fill" id="eyeConfirmar" onclick="mostrarSenha(this, 'confirmarSenha')"></i>
+            </div>
+
+            <div id="erro-senhas" style="color: red; display: none;">As senhas não coincidem!</div>
+        
+            <button class="login" type="submit">Criar conta</button>  <!-- Botão para enviar o formulário -->
+        
+        
+            <div class="links">
+                <span class="acesse"><a href="/login">Acesse sua conta</a></span>
+            </div>            
+            
+        </form>           
+        
+        <script src="/js/mostrar.js" ></script>    
+        <script src="/js/confirmar.js"></script>    
+        
+
+    </div>
+
+        
+
+</body>
+</html>
