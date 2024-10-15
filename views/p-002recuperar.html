@@ -18,7 +18,7 @@
     <div class="container">
         <h1>Recuperando Sua Senha!</h1>
         
-        <form>
+        <form action="/api/auth/recuperar" method="POST">
             <label for="email">Informe o email cadastrado:</label>
             <div class="costume-input">
                 <input type="email" name="email" 
@@ -26,20 +26,12 @@
                 autocomplete="off">
                 <i class='bx bx-at'></i>
             </div>
+            <button type="submit" class="login">Enviar link de recuperação</button>
 
-            <label for="senha">Informe o código enviado:</label>
-            <div class="costume-input">
-                <input type="password" name="senha" id="senha"
-                placeholder="Insira o código" title="Insira sua Senha" >
-
-            <i class="bi bi-eye-fill" id="eye" onclick="mostrarSenha(this, 'senha')"></i>
-            
-            </div>
+                       
         </form>
     
-        <a href="index4.html">
-            <button class="login" id="buton1">Refazer senha</button>
-        </a>
+        
         <div class="links">
             <a href="/login">Acesse sua conta.</a>
             <a href="/cadastrar">Não tem uma conta?</a>

@@ -31,7 +31,8 @@
             <div class="line"></div>
         </div>
 
-        <form>
+        <form id="form-login" action="/auth/login" method="POST">
+        
             <label for="email">Email:</label>
             <div class="costume-input">
                 <input type="email" name="email" 
@@ -52,7 +53,7 @@
 
 
             
-            <button type="button" class="login" id="loginButton"> Login</button>
+            <button type="submit" class="login" id="loginButton"> Login</button>
             <div class="links">
                 <a href="/recuperar">Refaça sua Senha</a>
                 <a href="/cadastrar">Não tem uma conta?</a>
