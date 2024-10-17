@@ -9,6 +9,8 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="icon" href="/img/PatClinic.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -44,7 +46,7 @@
         
             <label for="telefone">Telefone:</label>
             <div class="costume-input">
-                <input type="text" name="telefone" 
+                <input type="text" name="telefone" id="telefone"
                 placeholder="Insira seu telefone: (xx) xxxx-xxxx" title="Insira seu telefone"
                 autocomplete="off" required>
                 <i class='bx bx-telefone'></i>
@@ -52,7 +54,7 @@
         
             <label for="cpf">CPF:</label>
             <div class="costume-input">
-                <input type="text" name="cpf" 
+                <input type="text" name="cpf" id="cpf"
                 placeholder="Insira seu CPF" title="Insira seu CPF"
                 autocomplete="off" required>
                 <i class='bx bx-id-card'></i>
@@ -61,14 +63,14 @@
             <label for="senha">Senha:</label>
             <div class="costume-input">
                 <input type="password" name="senha" id="senha"
-                placeholder="Insira sua Senha" title="Insira sua senha" required>
+                placeholder="Insira sua Senha" title="Insira sua senha" minlength="8" required>
                 <i class="bi bi-eye-fill" id="eye" onclick="mostrarSenha(this, 'senha')"></i>
             </div>
         
             <label for="confirmarSenha">Confirmar Senha:</label>
             <div class="costume-input">
                 <input type="password" name="confirmarSenha" id="confirmarSenha"
-                placeholder="Confirme sua Senha" title="Confirme sua senha" required>
+                placeholder="Confirme sua Senha" title="Confirme sua senha" minlength="8" required>
                 <i class="bi bi-eye-fill" id="eyeConfirmar" onclick="mostrarSenha(this, 'confirmarSenha')"></i>
             </div>
 
@@ -84,7 +86,8 @@
         </form>           
         
         <script src="/js/mostrar.js" ></script>    
-        <script src="/js/confirmar.js"></script>    
+        <script src="/js/confirmar.js"></script>            
+        <script src="/js/mascara.js"></script>    
         
 
     </div>

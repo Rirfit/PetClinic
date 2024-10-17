@@ -65,26 +65,27 @@ router.post('/login', async (req, res) => {
     // Comparar senhas
     const isMatch = await bcrypt.compare(senha, usuario.senha)
     if (!isMatch) {
-      console.log('Senhas não coincidem');
+      console.log('Senhas não coincidem')
       return res.status(400).json({ msg: 'Credenciais inválidas' })
     }
-    console.log('Senhas coincidem, autenticando...');    
+    console.log('Senhas coincidem, autenticando...')    
 
     // Gerar token JWT
     const payload = { userId: usuario.id }
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
 
-    res.cookie('token', token, { httpOnly: true }); // Salvando o token como um cookie HTTP-Only (opcional)
-    res.redirect('/usuario'); // Redirecionando para a página do usuário após login bem-sucedido
+    res.cookie('token', token, { httpOnly: true }) // Salvando o token como um cookie HTTP-Only (opcional)
+    res.redirect('/usuario') // Redirecionando para a página do usuário após login bem-sucedido
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Erro no servidor');
+    console.error(err.message)
+    res.status(500).send('Erro no servidor')
   }
-});
+})
 
 
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
+const { error } = require('console')
 
 // @route   POST api/auth/forgot-senha
 // @desc    Enviar link de recuperação de senha
@@ -101,7 +102,7 @@ router.post('/recuperar', async (req, res) => {
     // Gerar token de reset
     const resetToken = crypto.randomBytes(20).toString('hex')
     usuario.resetPasswordToken = resetToken
-    usuario.resetPasswordExpires = Date.now() + 3600000 // 1 hora
+    usuario.resetPasswordExpires = Date.now() + 2592000000 
     await usuario.save()
 
     // Configurar nodemailer para envio de e-mails
@@ -112,8 +113,8 @@ router.post('/recuperar', async (req, res) => {
         pass: process.env.EMAIL_PASS,
       },
       tls: {
-        rejectUnauthorized: false, // Aceitar certificados autoassinados
-      }
+        rejectUnauthorized: false
+      }      
     })
 
     const mailOptions = {
@@ -123,7 +124,7 @@ router.post('/recuperar', async (req, res) => {
       text: `Você solicitou a recuperação de senha. Acesse o link abaixo:\n\nhttp://${req.headers.host}/reset/${resetToken}`,
     }
 
-    transporter.sendMail(mailOptions, (err) => {
+    transporter.sendMail(mailOptions, (err) => { //
       if (err) {
         console.error('Erro ao enviar o e-mail:', err)
         return res.status(500).send('Erro ao enviar e-mail')
@@ -136,32 +137,50 @@ router.post('/recuperar', async (req, res) => {
   }
 })
 
-// Rota para redefinir a senha
-router.post('/reset/:token', async (req, res) => {
-  const { password } = req.body;
+
+
+router.post('/novasenha', async (req, res) => {
+  const { email, token, password, confirmarSenha } = req.body
+
+  // Validação básica
+  if (!password || !confirmarSenha) {
+    console.log('Por favor, preencha todos os campos.')
+    return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' })
+  }
+
+  if (password !== confirmarSenha) {
+    console.log('As senhas não coincidem.')
+    return res.status(400).json({ msg: 'As senhas não coincidem.' })
+  }
 
   try {
     const usuario = await User.findOne({
-      resetPasswordToken: req.params.token,
-      resetPasswordExpires: { $gt: Date.now() }, // Verificar se o token ainda é válido
-    });
+      email: email,
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    })
 
     if (!usuario) {
-      return res.status(400).json({ msg: 'Token inválido ou expirado' });
+      console.log('Token inválido ou expirado.')
+      return res.status(400).json({ msg: 'Token inválido ou expirado.' })
     }
 
-    // Redefinir a senha
-    usuario.password = password; // Certifique-se de que a senha será criptografada
-    usuario.resetPasswordToken = undefined; // Remover o token de recuperação
-    usuario.resetPasswordExpires = undefined; // Remover a expiração
-    await usuario.save();
+    // Criptografar a nova senha
+    const salt = await bcrypt.genSalt(10)
+    usuario.senha = await bcrypt.hash(password, salt) // Substitui a senha antiga pela nova
 
-    res.json({ msg: 'Senha redefinida com sucesso' });
+    // Remover o token de recuperação
+    usuario.resetPasswordToken = undefined
+    usuario.resetPasswordExpires = undefined
+
+    await usuario.save()
+    
+    res.redirect('/login')
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Erro no servidor');
+    console.error(err.message)
+    res.status(500).send('Erro no servidor')
   }
-});
+})
 
 
 module.exports = router

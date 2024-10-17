@@ -14,3 +14,5 @@ document.getElementById('form-cadastro').addEventListener('submit', function(eve
         document.getElementById('erro-senhas').style.display = 'none'
     }
 })
+
+//<div id="erro-senhas" style="color: red; display: none;">As senhas não coincidem!</div>
