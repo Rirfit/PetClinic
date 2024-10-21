@@ -3,6 +3,8 @@ const router = express.Router()
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const User = require('../models/User') // Modelo de usuário
+const nodemailer = require('nodemailer')
+const crypto = require('crypto')
 require('dotenv').config()
 
 // Rota de cadastro
@@ -60,10 +62,10 @@ router.post('/login', async (req, res) => {
       console.log('Usuário não encontrado.')
       return res.status(400).json({ msg: 'Credencial inválida' })
     }
-    console.log('Usuário encontrado:', usuario)
-        
+            
     // Comparar senhas
     const isMatch = await bcrypt.compare(senha, usuario.senha)
+    
     if (!isMatch) {
       console.log('Senhas não coincidem')
       return res.status(400).json({ msg: 'Credenciais inválidas' })
@@ -81,15 +83,6 @@ router.post('/login', async (req, res) => {
     res.status(500).send('Erro no servidor')
   }
 })
-
-
-const nodemailer = require('nodemailer')
-const crypto = require('crypto')
-const { error } = require('console')
-
-// @route   POST api/auth/forgot-senha
-// @desc    Enviar link de recuperação de senha
-// @access  Público
 router.post('/recuperar', async (req, res) => {
   const { email } = req.body
 
@@ -100,11 +93,11 @@ router.post('/recuperar', async (req, res) => {
     }
 
     // Gerar token de reset
-    const resetToken = crypto.randomBytes(20).toString('hex')
-    usuario.resetPasswordToken = resetToken
-    usuario.resetPasswordExpires = Date.now() + 2592000000 
+    const token = crypto.randomBytes(20).toString('hex')
+    usuario.resetPasswordToken = token
+    usuario.resetPasswordExpires = Date.now() + 2592000000
     await usuario.save()
-
+    
     // Configurar nodemailer para envio de e-mails
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -121,14 +114,14 @@ router.post('/recuperar', async (req, res) => {
       to: usuario.email,
       from: process.env.EMAIL_USER,
       subject: 'Recuperação de Senha',
-      text: `Você solicitou a recuperação de senha. Acesse o link abaixo:\n\nhttp://${req.headers.host}/reset/${resetToken}`,
+      text: `Você solicitou a recuperação de senha. Acesse o link abaixo:\n\nhttp://${req.headers.host}/reset/${token}`,
     }
 
-    transporter.sendMail(mailOptions, (err) => { //
+    transporter.sendMail(mailOptions, (err) => { 
       if (err) {
         console.error('Erro ao enviar o e-mail:', err)
         return res.status(500).send('Erro ao enviar e-mail')
-      }
+      }      
       res.json({ msg: 'E-mail de recuperação enviado' })
     })
   } catch (err) {
@@ -137,46 +130,39 @@ router.post('/recuperar', async (req, res) => {
   }
 })
 
-
-
-router.post('/novasenha', async (req, res) => {
-  const { email, token, password, confirmarSenha } = req.body
-
-  // Validação básica
-  if (!password || !confirmarSenha) {
-    console.log('Por favor, preencha todos os campos.')
-    return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' })
-  }
-
-  if (password !== confirmarSenha) {
-    console.log('As senhas não coincidem.')
-    return res.status(400).json({ msg: 'As senhas não coincidem.' })
-  }
-
-  try {
-    const usuario = await User.findOne({
-      email: email,
+router.post('/reset/:token', async (req, res) => {
+  const {senha, confirmarSenha } = req.body
+  const token = req.params.token
+  
+  try {    
+    const usuario = await User.findOne({              
       resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() },
+      resetPasswordExpires: { $gt: Date.now() }
     })
-
-    if (!usuario) {
-      console.log('Token inválido ou expirado.')
+    
+    if (!usuario) {      
       return res.status(400).json({ msg: 'Token inválido ou expirado.' })
     }
+    // Validação básica
+    if (!senha || !confirmarSenha) {      
+      return res.status(400).json({ msg: 'Por favor, preencha todos os campos.' })      
+    }
 
-    // Criptografar a nova senha
-    const salt = await bcrypt.genSalt(10)
-    usuario.senha = await bcrypt.hash(password, salt) // Substitui a senha antiga pela nova
+    if (senha !== confirmarSenha) {      
+      return res.status(400).json({ msg: 'As senhas não coincidem.' })
+    }
+    
+    usuario.senha = senha // 
 
     // Remover o token de recuperação
     usuario.resetPasswordToken = undefined
     usuario.resetPasswordExpires = undefined
 
+    // Salvar o usuário com a nova senha
     await usuario.save()
     
-    res.redirect('/login')
-  } catch (err) {
+    res.status(200).json({ msg: 'Senha alterada com sucesso.' });
+    } catch (err) {
     console.error(err.message)
     res.status(500).send('Erro no servidor')
   }

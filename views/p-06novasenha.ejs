@@ -17,15 +17,13 @@
     <div class="container">
         <h1>Crie sua nova Senha!</h1>
             
-        <form id="novoForm" action="/novasenha" method="POST">
-            <input type="hidden" name="email" value="<%= email %>">
-            <input type="hidden" name="token" value="<%= token %>">            
+        <form id="novoForm" action="/auth/reset/<%= token %>" method="POST">                                            
 
-            <label for="password">Informe sua nova senha:</label>
+            <label for="senha">Informe sua nova senha:</label>
             <div class="costume-input">
-                <input type="password" name="password" id="password" placeholder="Insira sua nova Senha" title="Insira sua Senha" minlength="8" required>
+                <input type="password" name="senha" id="senha" placeholder="Insira sua nova Senha" title="Insira sua Senha" minlength="8" required>
                    
-                <i class="bi bi-eye-fill" id="eye" onclick="mostrarSenha(this, 'password')"></i>
+                <i class="bi bi-eye-fill" id="eye" onclick="mostrarSenha(this, 'senha')"></i>
             </div>
 
             <label for="confirmarSenha">Confirme a senha nova:</label>
@@ -45,10 +43,25 @@
         <script>
             document.getElementById('novoForm').onsubmit = async function(event) {
                 event.preventDefault();
-                const formData = new FormData(this);
+                const senha = document.getElementById('senha').value;
+                const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+                if (senha !== confirmarSenha) {
+                    document.getElementById('erro-senhas').innerText = 'As senhas não coincidem!';
+                    document.getElementById('erro-senhas').style.display = 'block';
+                    return; // Não submete o formulário
+                }
+                // Cria um objeto JSON com os dados do formulário
+                const data = {
+                    senha: senha,
+                    confirmarSenha: confirmarSenha
+                };
                 const response = await fetch(this.action, {
-                    method: this.method,
-                    body: formData
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Define o cabeçalho como JSON
+                    },
+                    body: JSON.stringify(data) // Envia os dados como JSON
                 });
                 const result = await response.json();
                 if (!response.ok) {

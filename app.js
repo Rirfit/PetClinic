@@ -1,5 +1,6 @@
 const express = require('express')
 const path = require("path")
+const bodyParser = require('body-parser')
 const connectDB = require('./config/database')
 const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/user')
@@ -13,17 +14,17 @@ const app = express()
 connectDB()
 
 
-// Middleware para lidar com dados do formulário
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())// Para tratar JSON no corpo das 
-app.use(cookieParser())
+
+app.use(bodyParser.urlencoded({ extended: false })) //  Middleware para analisar os dados do formulário
+app.use(bodyParser.json()) // Middleware para analisar os dados JSON
+app.use(cookieParser()) // Middleware para analisar cookies
 
 // Servindo arquivos estáticos (CSS, JS, Imagens)
 app.use(express.static(path.join(__dirname, 'public'))) // Corrigido o uso do path.join
 app.use(express.static(path.join(__dirname, 'views')))  // Se você quiser servir os arquivos estáticos da pasta views
 
 // Configurar o mecanismo de template EJS
-app.set('view engine', 'ejs')
+app.set('view engine', 'ejs') // Definir o mecanismo de visualização como EJS
 
 // Definir o diretório de views (opcional, se for diferente de 'views')
 app.set('views', path.join(__dirname, 'views'))
@@ -49,23 +50,6 @@ app.get('/usuario', (req, res) => {
     res.render('p-03User')
 })
 
-app.get('/novasenha', async (req, res) => {
-    const { email, token } = req.query
-
-    const user = await User.findOne({
-        email,
-        resetToken: token,
-        resetTokenExpiration: { $gt: Date.now() }
-    })
-
-    if (!user) {
-        return res.status(400).json({ msg: 'Token inválido ou expirado.' })
-    }
-
-    // Renderizar a página de nova senha com os parâmetros corretos
-    res.render('p-06novasenha', { email, token })
-})
-
 app.get('/reset/:token', async (req, res) => {
     try {
         // Verifique se o token é válido e se não expirou
@@ -76,8 +60,8 @@ app.get('/reset/:token', async (req, res) => {
 
         if (!usuario) {
             return res.status(400).json({ msg: 'Token inválido ou expirado' })
-        }
-
+        }      
+        
         // Renderizar a página de nova senha, passando o email e o token para o formulário
         res.render('p-06novasenha', { email: usuario.email, token: req.params.token })
     } catch (err) {
@@ -85,50 +69,6 @@ app.get('/reset/:token', async (req, res) => {
         res.status(500).send('Erro no servidor')
     }
 })
-
-app.post('/novasenha', async (req, res) => {
-    const { email, token, password, confirmarSenha } = req.body
-  
-    // Validação básica
-    if (!password || !confirmarSenha) {
-      console.log('Por favor, preencha todos os campos.')
-    }
-  
-    if (password !== confirmarSenha) {
-      console.log('As senhas não coincidem.')
-    }
-  
-    try {
-      // Buscar o usuário pelo token e garantir que o token ainda é válido
-      const usuario = await User.findOne({
-        email: email,
-        resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() },
-      })
-  
-      if (!usuario) {
-        return res.status(400).json({ msg: 'Token inválido ou expirado.' })      
-      }
-      console.log('Token inválido ou expirado.')
-  
-      // Criptografar a nova senha
-      const salt = await bcrypt.genSalt(10)
-      usuario.senha = await bcrypt.hash(password, salt) // Substitui a senha antiga pela nova
-  
-      // Remover o token de recuperação
-      usuario.resetPasswordToken = undefined
-      usuario.resetPasswordExpires = undefined
-  
-      // Salvar o usuário com a nova senha
-      await usuario.save()
-  
-      res.redirect('/login') // Redireciona o usuário para a página de login
-    } catch (err) {
-      console.error(err.message)
-      res.status(500).send('Erro no servidor')
-    }
-})
-
 
 // Definindo a rota de autenticação
 
