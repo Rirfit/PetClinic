@@ -34,6 +34,10 @@ app.get('/cadastrar', (req, res) => {
     res.render('p-00cadastrar') // Renderizando o EJS sem extensão
 })
 
+app.get('/cadastrarAnimal', (req, res) => {
+    res.render('p-07AnimalCadastro')
+})
+
 app.get('/login', (req, res) => {
     res.render('p-01login') // Certifique-se de que este arquivo existe em "views"
 })

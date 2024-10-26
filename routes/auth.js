@@ -114,7 +114,7 @@ router.post('/recuperar', async (req, res) => {
       to: usuario.email,
       from: process.env.EMAIL_USER,
       subject: 'Recuperação de Senha',
-      text: `Você solicitou a recuperação de senha. Acesse o link abaixo:\n\nhttp://${req.headers.host}/reset/${token}`,
+      text: `Você solicitou a recuperação de senha. Acesse o link abaixo:\n\nhttp://${req.headers.host}/reset/${token} \n\nou copie e cole este link, na barra de endereço do seu navegador.`,
     }
 
     transporter.sendMail(mailOptions, (err) => { 
