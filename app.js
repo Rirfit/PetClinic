@@ -54,6 +54,12 @@ app.get('/usuario', (req, res) => {
     res.render('p-03User')
 })
 
+
+app.get('/perfil', (req, res) => {
+    res.redirect('/user/perfil')
+})
+
+
 app.get('/reset/:token', async (req, res) => {
     try {
         // Verifique se o token é válido e se não expirou

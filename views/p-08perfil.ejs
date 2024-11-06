@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil do Usuário</title>
+    <link rel="stylesheet" href="/style/style08.css">
+    <link rel="stylesheet" href="/style/style09.css">
+    <link rel="icon" href="/img/PatClinic.png">
+</head>
+<body>
+    <header>
+        <nav class="logo-header">
+            <img src="/img/PatClinic.png" alt="Logo">
+        </nav>
+        <nav class="header-info">
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/sobre">Sobre</a></li>
+                <li><a href="/contato">Contato</a></li>
+            </ul>
+        </nav>
+        <nav class="header-login"> 
+            <a href="/agendar">Agendar Castração</a>           
+            <a href="/cadastrarAnimal">Cadastro do Animal</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="container1">
+            <video autoplay muted loop>
+                <source src="/videos/dog1.mp4" type="video/mp4">
+                Seu navegador não suporta o vídeo.
+            </video>
+            <div class="text-area">
+                <h2>Bem-vindo ao Perfil do Usuário</h2>
+            </div>
+        </section>
+
+        <section class="container2">
+            <div class="content1">
+                <h3>Informações do Usuário</h3>
+                <div id="userInfo">
+                    <p>Nome: <span id="displayNome"><%= usuario.nome %></span></p>
+                    <p>Email: <span id="displayEmail"><%= usuario.email %></span></p>
+                    <p>Telefone: <span id="displayTelefone"><%= usuario.telefone %></span></p>
+                </div>
+                
+                <form id="updateForm" style="display: none;">
+                    <div class="form-group">
+                        <label for="nome">Nome:</label>
+                        <input type="text" id="nome" name="nome" value="<%= usuario.nome %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" value="<%= usuario.email %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone">Telefone:</label>
+                        <input type="tel" id="telefone" name="telefone" value="<%= usuario.telefone %>" required>
+                    </div>
+                    <button type="submit" class="button-action">Salvar Alterações</button>
+                    <button type="button" class="button-action" onclick="toggleForm()">Cancelar</button>
+                </form>
+
+                <button class="button-action" onclick="toggleForm()" id="editButton">Editar Perfil</button>
+                <button class="button-action danger" onclick="confirmarExclusao()">Excluir Conta</button>
+            </div>
+            <div class="content2">
+                <h3>Meus Animais</h3>
+                <div id="animaisLista"></div>
+            
+                <script>
+                    // Função para carregar os animais
+                    async function carregarAnimais() {
+                        try {
+                            const response = await fetch('/user/animais');
+                            if (!response.ok) {
+                                throw new Error('Erro ao buscar animais');
+                            }
+                            const animais = await response.json();
+                            
+                            const animaisLista = document.getElementById('animaisLista');
+                            animaisLista.innerHTML = '';
+
+                            if (animais.length === 0) {
+                                animaisLista.innerHTML = '<p>Nenhum animal cadastrado.</p>';
+                                return;
+                            }
+            
+                            animais.forEach(animal => {
+                                const animalDiv = document.createElement('div');
+                                animalDiv.className = 'animal-card';
+                                animalDiv.innerHTML = `
+                                    <div class="animal-info">
+                                        <p>Nome: <span data-nome>${animal.nome}</span></p>
+                                        <p>Raça: <span data-raca>${animal.raca}</span></p>
+                                        <p>RGA: <span data-rga>${animal.rga}</span></p>
+                                        <p>Idade: <span data-idade>${animal.idade} anos</span></p>
+                                        <p>Peso: <span data-peso>${animal.peso} kg</span></p>
+                                    </div>
+                                    <div class="animal-actions">
+                                        <button onclick="editarAnimal('${animal._id}')" class="btn-edit">Editar</button>
+                                        <button onclick="excluirAnimal('${animal._id}')" class="btn-danger">Excluir</button>
+                                    </div>
+                                `;
+                                animaisLista.appendChild(animalDiv);
+                            });
+                        } catch (err) {
+                            console.error('Erro ao carregar animais:', err);
+                            document.getElementById('animaisLista').innerHTML = 
+                                '<p class="error">Erro ao carregar os animais. Por favor, tente novamente mais tarde.</p>';
+                        }
+                    }
+                        
+                    
+            
+                    // Função para editar animal
+                    async function editarAnimal(id) {
+                        try {
+                            const animalDiv = document.querySelector(`.animal-card`);
+                            if (!animalDiv) return;
+                    
+                            animalDiv.innerHTML = `
+                                <form onsubmit="salvarEdicao(event, '${id}')" class="edit-form">
+                                    <div class="form-group">
+                                        <label>Nome:</label>
+                                        <input type="text" name="nome" value="${animalDiv.querySelector('[data-nome]').textContent}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Raça:</label>
+                                        <input type="text" name="raca" value="${animalDiv.querySelector('[data-raca]').textContent}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>RGA:</label>
+                                        <input type="text" name="rga" value="${animalDiv.querySelector('[data-rga]').textContent}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Idade:</label>
+                                        <input type="number" name="idade" value="${animalDiv.querySelector('[data-idade]').textContent.split(' ')[0]}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Peso:</label>
+                                        <input type="text" name="peso" value="${animalDiv.querySelector('[data-peso]').textContent.split(' ')[0]}" required>
+                                    </div>
+                                    <button type="submit" class="btn-save">Salvar</button>
+                                    <button type="button" onclick="carregarAnimais()" class="btn-cancel">Cancelar</button>
+                                </form>
+                            `;
+                        } catch (err) {
+                            console.error('Erro ao editar animal:', err);
+                            alert('Erro ao editar animal. Por favor, tente novamente.');
+                        }
+                    }
+
+                    // Função para salvar a edição
+                    async function salvarEdicao(event, id) {
+                        event.preventDefault();
+                        
+                        const form = event.target;
+                        const formData = {
+                            nome: form.nome.value,
+                            raca: form.raca.value,
+                            rga: form.rga.value,
+                            idade: parseInt(form.idade.value),
+                            peso: form.peso.value
+                        };
+
+                        try {
+                            const response = await fetch(`/user/animal/${id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(formData)
+                            });
+
+                            if (response.ok) {
+                                alert('Animal atualizado com sucesso!');
+                                carregarAnimais();
+                            } else {
+                                throw new Error('Erro ao atualizar animal');
+                            }
+                        } catch (err) {
+                            console.error('Erro:', err);
+                            alert('Erro ao atualizar animal. Por favor, tente novamente.');
+                        }
+                    }
+            
+                    // Função para excluir animal
+                    async function excluirAnimal(id) {
+                        if (confirm('Tem certeza que deseja excluir este animal?')) {
+                            try {
+                                const response = await fetch(`/user/animal/${id}`, {
+                                    method: 'DELETE'
+                                });
+                                
+                                if (response.ok) {
+                                    alert('Animal excluído com sucesso!');
+                                    carregarAnimais();
+                                } else {
+                                    throw new Error('Erro ao excluir animal');
+                                }
+                            } catch (err) {
+                                console.error('Erro:', err);
+                                alert('Erro ao excluir animal. Por favor, tente novamente.');
+                            }
+                        }
+                    }
+            
+                    // Carregar animais quando a página carregar
+                    document.addEventListener('DOMContentLoaded', carregarAnimais);
+                </script>
+            
+                <style>
+                    .animal-card {
+                        border: 1px solid #ddd;
+                        padding: 15px;
+                        margin: 10px 0;
+                        border-radius: 5px;
+                        background-color: #fff;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    }
+                
+                    .animal-info {
+                        margin-bottom: 10px;
+                    }
+                
+                    .animal-info p {
+                        margin: 5px 0;
+                    }
+                
+                    .animal-actions {
+                        display: flex;
+                        gap: 10px;
+                    }
+                
+                    .btn-edit, .btn-danger {
+                        padding: 5px 15px;
+                        border: none;
+                        border-radius: 3px;
+                        cursor: pointer;
+                    }
+                
+                    .btn-edit {
+                        background-color: #007bff;
+                        color: white;
+                    }
+                
+                    .btn-danger {
+                        background-color: #dc3545;
+                        color: white;
+                    }
+                
+                    .edit-form {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+                    }
+                
+                    .form-group {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 5px;
+                    }
+                
+                    .error {
+                        color: #dc3545;
+                        text-align: center;
+                        padding: 10px;
+                    }
+                </style>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('updateForm');
+            const userInfo = document.getElementById('userInfo');
+            const editButton = document.getElementById('editButton');
+            
+            if (form.style.display === 'none') {
+                form.style.display = 'block';
+                userInfo.style.display = 'none';
+                editButton.style.display = 'none';
+            } else {
+                form.style.display = 'none';
+                userInfo.style.display = 'block';
+                editButton.style.display = 'inline-block';
+            }
+        }
+
+        document.getElementById('updateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value
+            };
+
+            try {
+                const response = await fetch('/user/atualizar', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Atualizar os dados exibidos
+                    document.getElementById('displayNome').textContent = formData.nome;
+                    document.getElementById('displayEmail').textContent = formData.email;
+                    document.getElementById('displayTelefone').textContent = formData.telefone;
+                    
+                    toggleForm();
+                    alert('Perfil atualizado com sucesso!');
+                } else {
+                    alert(data.msg || 'Erro ao atualizar perfil');
+                }
+            } catch (err) {
+                console.error('Erro:', err);
+                alert('Erro ao atualizar perfil');
+            }
+        });
+
+        function confirmarExclusao() {
+            if (confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.')) {
+                excluirConta();
+            }
+        }
+
+        async function excluirConta() {
+            try {
+                const response = await fetch('/user/remover', {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert(data.msg);
+                    window.location.href = '/login';
+                } else {
+                    alert(data.msg || 'Erro ao excluir conta');
+                }
+            } catch (err) {
+                console.error('Erro:', err);
+                alert('Erro ao excluir conta');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../models/User') // Modelo de usuário
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
-const animal = require('../models/animal')
+const Animal = require('../models/animal')
 require('dotenv').config()
 
 // Rota de cadastro
@@ -48,44 +48,6 @@ router.post('/cadastrar', async (req, res) => {
     }
 })
 
-// Rota de cadastro Animal
-router.post('/cadastrarAnimal', async (req, res) => {
-  const { nome, raca, rga, idade, peso } = req.body
-
-  // Validações simples
-  if (!nome || !raca || !rga || !idade || !peso) {
-      return res.status(400).send('Por favor, preencha todos os campos.')
-  }
-  
-  try {
-      // Verifica se o animal já existe
-      const animalExistente = await User.findOne({ rga: rga })
-      if (animalExistente) {
-          return res.status(400).send('Animal já cadastrado.')
-      }
-
-      // Cria um novo cadastro de animal
-      pet = new animal({
-          nome,
-          raca,
-          rga,
-          idade,
-          peso // A senha será criptografada antes de salvar
-      })        
-      // Salva o animal no banco de dados
-      await pet.save()
-
-      
-      // Após o cadastro com sucesso, redirecionar para a página de login
-      res.redirect('/login')
-  } catch (err) {
-      console.error(err)
-      res.status(500).send('Erro no servidor')
-  }
-})
-
-
-
 // @route   POST api/auth/login
 // @desc    Login de usuário
 // @access  Público
@@ -114,7 +76,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
 
     res.cookie('token', token, { httpOnly: true }) // Salvando o token como um cookie HTTP-Only (opcional)
-    res.redirect('/usuario') // Redirecionando para a página do usuário após login bem-sucedido
+    res.redirect('/perfil') // Redirecionando para a página do usuário após login bem-sucedido
   } catch (err) {
     console.error(err.message)
     res.status(500).send('Erro no servidor')
