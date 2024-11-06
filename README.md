@@ -25,8 +25,9 @@ Este projeto foi realizado com a colaboração do seguinte professor:
 Para o desenvolvimento deste projeto, utilizamos um conjunto de tecnologias modernas e eficazes. Aqui estão as principais ferramentas:
 
 - **JavaScript (JS)**: Para scripts do lado do cliente e do servidor.
-- **HTML**: Estrutura básica das páginas web.
 - **CSS**: Estilização e design das páginas.
+- **HTML**: Estrutura básica das páginas web.
+- **EJS**: (Embedded JavaScript), que permitem renderizar HTML dinâmico com dados do servidor..
 - **Node.js**: Ambiente de execução do JavaScript no servidor.
 - **MongoDB**: Sistema de gerenciamento de banco de dados para armazenar nossos dados.
 - **Figma**: Ferramenta de design utilizada para criar o layout e o design de interface do usuário.
