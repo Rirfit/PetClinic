@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos Disponíveis</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1>Agendamentos Disponíveis</h1>
+    <div class="cards-container">
+        <% datasDisponiveis.forEach(data => { %>
+            <div class="card">
+                <h2>Médico: <%= data.nomeMedico %></h2>
+                <p>Data: <%= new Date(data.dataAgendamento).toLocaleString() %></p>
+                <form action="/marcar-agendamento" method="POST">
+                    <input type="hidden" name="agendamentoId" value="<%= data._id %>">
+                    <input type="hidden" name="userId" value="<%= user._id %>"> <!-- Adicione o ID do usuário -->
+                    <input type="text" name="nomePaciente" placeholder="Seu nome" required>
+                    <button type="submit">Marcar</button>
+                </form>
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>
