@@ -2,11 +2,48 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const User = require('../models/User') // Modelo de usuário
+const User = require('../models/User')
+const Agendamento = require('../models/Agendamento')
 const nodemailer = require('nodemailer')
 const crypto = require('crypto')
-const animal = require('../models/animal')
 require('dotenv').config()
+
+// Rota para listar os horários disponíveis
+router.get('/datas-disponiveis', async (req, res) => {
+    try {
+        const datasDisponiveis = await Agendamento.find({ disponivel: true }).select('dataAgendamento nomeMedico')
+        res.status(200).json(datasDisponiveis)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send('Erro no servidor')
+    }
+})
+
+// Rota para marcar uma data específica
+router.post('/marcar-agendamento', async (req, res) => {
+    const { agendamentoId, userId, nomePaciente } = req.body
+
+    try {
+        const agendamento = await Agendamento.findById(agendamentoId)
+        if (!agendamento) {
+            return res.status(400).send('Agendamento não encontrado.')
+        }
+
+        if (!agendamento.disponivel) {
+            return res.status(400).send('Agendamento não está disponível.')
+        }
+
+        agendamento.nomePaciente = nomePaciente
+        agendamento.userId = userId
+        agendamento.disponivel = false
+        await agendamento.save()
+
+        res.status(200).json({ msg: 'Agendamento realizado com sucesso.' })
+    } catch (err) {
+        console.error(err)
+        res.status(500).send('Erro no servidor')
+    }
+})
 
 // Rota de cadastro
 router.post('/cadastrar', async (req, res) => {
@@ -204,6 +241,11 @@ router.post('/reset/:token', async (req, res) => {
     res.status(500).send('Erro no servidor')
   }
 })
+
+
+ 
+
+
 
 
 module.exports = router
