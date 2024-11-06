@@ -7,7 +7,7 @@ Este projeto é desenvolvido por alunos da Faculdade de Tecnologia da Zona Leste
 ## 👥 Equipe do Projeto
 
 Este projeto foi realizado com a colaboração dos seguintes membros, listados em ordem alfabética:
-- <a src="https://www.linkedin.com/in/rirfit/">Gabirel O.</a>
+- <a src="https://www.linkedin.com/in/rirfit/">Gabriel O.</a>
 - <a src="https://www.linkedin.com/in/gustavo-morais-arruda/"> Gustavo M. </a>
 - <a src="https://www.linkedin.com/in/joaomaximiano/">João M.</a>
 - <a src="https://www.linkedin.com/in/joseclaudiley/">José C.</a>
