@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil do Usuário</title>
-    <link rel="stylesheet" href="/style/style08.css">
     <link rel="stylesheet" href="/style/style09.css">
+    <link rel="stylesheet" href="/style/style10.css">
     <link rel="icon" href="/img/PatClinic.png">
 </head>
 <body>
@@ -91,6 +91,7 @@
                             animais.forEach(animal => {
                                 const animalDiv = document.createElement('div');
                                 animalDiv.className = 'animal-card';
+                                animalDiv.setAttribute('data-id', animal._id); // Adiciona o ID como atributo
                                 animalDiv.innerHTML = `
                                     <div class="animal-info">
                                         <p>Nome: <span data-nome>${animal.nome}</span></p>
@@ -118,33 +119,42 @@
                     // Função para editar animal
                     async function editarAnimal(id) {
                         try {
-                            const animalDiv = document.querySelector(`.animal-card`);
+                            const animalDiv = document.querySelector(`.animal-card[data-id="${id}"]`);
                             if (!animalDiv) return;
+
+                            // Obtém os valores atuais do animal
+                            const nome = animalDiv.querySelector('[data-nome]').textContent;
+                            const raca = animalDiv.querySelector('[data-raca]').textContent;
+                            const rga = animalDiv.querySelector('[data-rga]').textContent;
+                            const idade = animalDiv.querySelector('[data-idade]').textContent.split(' ')[0];
+                            const peso = animalDiv.querySelector('[data-peso]').textContent.split(' ')[0];
                     
                             animalDiv.innerHTML = `
                                 <form onsubmit="salvarEdicao(event, '${id}')" class="edit-form">
                                     <div class="form-group">
                                         <label>Nome:</label>
-                                        <input type="text" name="nome" value="${animalDiv.querySelector('[data-nome]').textContent}" required>
+                                        <input type="text" name="nome" value="${nome}" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Raça:</label>
-                                        <input type="text" name="raca" value="${animalDiv.querySelector('[data-raca]').textContent}" required>
+                                        <input type="text" name="raca" value="${raca}" required>
                                     </div>
                                     <div class="form-group">
                                         <label>RGA:</label>
-                                        <input type="text" name="rga" value="${animalDiv.querySelector('[data-rga]').textContent}" required>
+                                        <input type="text" name="rga" value="${rga}" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Idade:</label>
-                                        <input type="number" name="idade" value="${animalDiv.querySelector('[data-idade]').textContent.split(' ')[0]}" required>
+                                        <input type="number" name="idade" value="${idade}" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Peso:</label>
-                                        <input type="text" name="peso" value="${animalDiv.querySelector('[data-peso]').textContent.split(' ')[0]}" required>
+                                        <input type="text" name="peso" value="${peso}" required>
                                     </div>
-                                    <button type="submit" class="btn-save">Salvar</button>
-                                    <button type="button" onclick="carregarAnimais()" class="btn-cancel">Cancelar</button>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn-save">Salvar</button>
+                                        <button type="button" onclick="carregarAnimais()" class="btn-cancel">Cancelar</button>
+                                    </div>
                                 </form>
                             `;
                         } catch (err) {

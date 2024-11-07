@@ -29,7 +29,7 @@ router.get('/perfil', verifyToken, async (req, res) => {
     if (!usuario) {
       return res.redirect('/login')
     }
-    res.render('p-08perfil', { usuario })
+    res.render('p-09perfil', { usuario })
   } catch (err) {
     console.error(err)
     res.redirect('/login')

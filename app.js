@@ -59,6 +59,10 @@ app.get('/perfil', (req, res) => {
     res.redirect('/user/perfil')
 })
 
+app.get('/agendar', (req, res) => {
+    res.render('p-08agendamento')
+})
+
 
 app.get('/reset/:token', async (req, res) => {
     try {

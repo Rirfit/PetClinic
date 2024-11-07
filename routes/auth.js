@@ -59,7 +59,13 @@ router.post('/login', async (req, res) => {
     const usuario = await User.findOne({ email })
     if (!usuario) {
       console.log('Usuário não encontrado.')
-      return res.status(400).json({ msg: 'Credencial inválida' })
+      // Retorna um status 400 com HTML que inclui o script para mostrar o pop-up
+      return res.status(400).send(`
+        <script>
+          alert("Usuário não encontrado. Faça seu cadastro.");
+          history.back(); // Volta para a página anterior
+        </script>
+      `);
     }
             
     // Comparar senhas
@@ -67,7 +73,13 @@ router.post('/login', async (req, res) => {
     
     if (!isMatch) {
       console.log('Senhas não coincidem')
-      return res.status(400).json({ msg: 'Credenciais inválidas' })
+      // Retorna um status 400 com HTML que inclui o script para mostrar o pop-up
+      return res.status(400).send(`
+        <script>
+          alert("Senha incorreta. Tente novamente.");
+          history.back(); // Volta para a página anterior
+        </script>
+      `);
     }
     console.log('Senhas coincidem, autenticando...')    
 
@@ -79,9 +91,16 @@ router.post('/login', async (req, res) => {
     res.redirect('/perfil') // Redirecionando para a página do usuário após login bem-sucedido
   } catch (err) {
     console.error(err.message)
-    res.status(500).send('Erro no servidor')
+    // Retorna um status 500 com HTML que inclui o script para mostrar o pop-up
+    return res.status(500).send(`
+      <script>
+        alert("Erro no servidor. Tente novamente mais tarde.");
+        history.back();
+      </script>
+    `)
   }
 })
+  
 router.post('/recuperar', async (req, res) => {
   const { email } = req.body
 
